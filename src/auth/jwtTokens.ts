@@ -3,12 +3,16 @@ import { IUser } from "../models/user";
 
 export const createAccessToken = (user: IUser) => {
   return sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET!, {
-    expiresIn: "15m",
+    expiresIn: "10m",
   });
 };
 
 export const createRefreshToken = (user: IUser) => {
-  return sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET!, {
-    expiresIn: "7d",
-  });
+  return sign(
+    { userId: user._id, tokenVersion: user.tokenVersion },
+    process.env.REFRESH_TOKEN_SECRET!,
+    {
+      expiresIn: "7d",
+    }
+  );
 };
