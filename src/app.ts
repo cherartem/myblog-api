@@ -11,6 +11,7 @@ import "dotenv/config";
 const app: Application = express();
 
 import userRouter from "./routes/user";
+import refreshTokenRouter from "./routes/refreshToken";
 
 if (process.env.DB_CONNECTION) {
   mongoose.connect(process.env.DB_CONNECTION);
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/users", userRouter);
+app.use("/api/refresh-token", refreshTokenRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

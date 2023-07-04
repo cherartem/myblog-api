@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
 import { hash, compare } from "bcryptjs";
@@ -6,7 +6,7 @@ import passwordSchema from "../auth/passwordSchema";
 import he from "he";
 import { User } from "../models/user";
 import { createAccessToken, createRefreshToken } from "../auth/jwtTokens";
-import { AuthenticatedRequest } from "../types/request";
+import { sendRefreshToken } from "../auth/sendRefreshToken";
 
 export const signUp = [
   body("fullname", "This field is required").trim().notEmpty().escape(),
@@ -111,9 +111,7 @@ export const signIn = [
       const accessToken = createAccessToken(user!);
       const refreshToken = createRefreshToken(user!);
 
-      res.cookie("jid", refreshToken, {
-        httpOnly: true,
-      });
+      sendRefreshToken(res, refreshToken);
 
       res.status(200).json({
         message: "You have successfully signed in",
