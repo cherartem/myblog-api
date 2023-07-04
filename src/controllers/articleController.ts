@@ -97,14 +97,44 @@ export const updateArticle = [
       return;
     }
 
-    await Article.findByIdAndUpdate(articleId, {
-      title: req.body.title,
-      description: req.body.description,
-      content: req.body.content,
-    });
+    const article = await Article.findById(articleId).exec();
+
+    if (!article) {
+      res.status(404).json({
+        message: "Article not found",
+      });
+      return;
+    }
+
+    article.title = req.body.title;
+    article.description = req.body.description;
+    article.content = req.body.content;
+
+    await article.save();
 
     res.status(200).json({
       message: "Successfully updated the article",
     });
   }),
 ];
+
+export const deleteArticle = expressAsyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { articleId } = req.params;
+
+    const article = await Article.findById(articleId).exec();
+
+    if (!article) {
+      res.status(404).json({
+        message: "Article not found",
+      });
+      return;
+    }
+
+    await Article.deleteOne({ _id: articleId });
+
+    res.status(200).json({
+      message: "Successfully deleted the article",
+    });
+  }
+);
