@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import { AuthenticatedRequest } from "../types/request";
-import { Response } from "express";
+import { Response, Request } from "express";
 import { body, validationResult } from "express-validator";
 import he from "he";
 import { Article } from "../models/article";
@@ -46,3 +46,22 @@ export const createArticle = [
     });
   }),
 ];
+
+export const readArticle = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const { articleId } = req.params;
+
+    const article = await Article.findById(articleId).exec();
+
+    if (!article) {
+      res.status(404).json({
+        message: "Article not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      article,
+    });
+  }
+);
