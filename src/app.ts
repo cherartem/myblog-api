@@ -12,6 +12,7 @@ const app: Application = express();
 
 import userRouter from "./routes/user";
 import refreshTokenRouter from "./routes/refreshToken";
+import articleRouter from "./routes/article";
 
 if (process.env.DB_CONNECTION) {
   mongoose.connect(process.env.DB_CONNECTION);
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/users", userRouter);
 app.use("/api/refresh-token", refreshTokenRouter);
+app.use("/api/articles", articleRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
