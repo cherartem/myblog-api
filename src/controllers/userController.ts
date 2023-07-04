@@ -6,6 +6,7 @@ import passwordSchema from "../auth/passwordSchema";
 import he from "he";
 import { User } from "../models/user";
 import { createAccessToken, createRefreshToken } from "../auth/jwtTokens";
+import { AuthenticatedRequest } from "../types/request";
 
 export const signUp = [
   body("fullname", "This field is required").trim().notEmpty().escape(),
