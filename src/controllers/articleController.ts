@@ -138,3 +138,19 @@ export const deleteArticle = expressAsyncHandler(
     });
   }
 );
+
+export const readAllArticles = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const skip = req.query.skip ? Number(req.query.skip) : 0;
+
+    const allArticles = await Article.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(2)
+      .exec();
+
+    res.status(200).json({
+      allArticles,
+    });
+  }
+);
