@@ -65,3 +65,46 @@ export const readArticle = expressAsyncHandler(
     });
   }
 );
+
+export const updateArticle = [
+  body("title", "This field is required")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 1, max: 70 })
+    .withMessage("This field should be between 1 and 70 characters long")
+    .escape(),
+  body("description", "This field is required")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 1, max: 300 })
+    .withMessage("This field should be between 1 and 300 characters long")
+    .escape(),
+  body("content", "This field is required").trim().notEmpty().escape(),
+
+  expressAsyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const validationErrors = validationResult(req);
+    const { articleId } = req.params;
+
+    if (!validationErrors.isEmpty()) {
+      res.status(400).json({
+        errors: validationErrors.array(),
+        formData: {
+          title: he.decode(req.body.title),
+          description: he.decode(req.body.description),
+          content: he.decode(req.body.content),
+        },
+      });
+      return;
+    }
+
+    await Article.findByIdAndUpdate(articleId, {
+      title: req.body.title,
+      description: req.body.description,
+      content: req.body.content,
+    });
+
+    res.status(200).json({
+      message: "Successfully updated the article",
+    });
+  }),
+];
