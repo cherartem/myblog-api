@@ -19,6 +19,17 @@ export const createArticle = [
     .withMessage("This field should be between 1 and 300 characters long")
     .escape(),
   body("content", "This field is required").trim().notEmpty().escape(),
+  body("isPublished", "This field is required")
+    .trim()
+    .notEmpty()
+    .custom((value) => {
+      if (value !== "true" && value !== "false") {
+        throw new Error("This field must be a boolean");
+      } else {
+        return true;
+      }
+    })
+    .escape(),
 
   expressAsyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const validationErrors = validationResult(req);
@@ -39,6 +50,7 @@ export const createArticle = [
       title: req.body.title,
       description: req.body.description,
       content: req.body.content,
+      isPublished: req.body.isPublished,
     });
 
     res.status(200).json({
@@ -47,8 +59,27 @@ export const createArticle = [
   }),
 ];
 
-export const readArticle = expressAsyncHandler(
+export const readPublishedArticle = expressAsyncHandler(
   async (req: Request, res: Response) => {
+    const { articleId } = req.params;
+
+    const article = await Article.findById(articleId).exec();
+
+    if (!article || article.isPublished === false) {
+      res.status(404).json({
+        message: "Article not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      article,
+    });
+  }
+);
+
+export const readArticle = expressAsyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
     const { articleId } = req.params;
 
     const article = await Article.findById(articleId).exec();
@@ -139,8 +170,24 @@ export const deleteArticle = expressAsyncHandler(
   }
 );
 
-export const readAllArticles = expressAsyncHandler(
+export const readAllPublishedArticles = expressAsyncHandler(
   async (req: Request, res: Response) => {
+    const skip = req.query.skip ? Number(req.query.skip) : 0;
+
+    const allArticles = await Article.find({ isPublished: true })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(2)
+      .exec();
+
+    res.status(200).json({
+      allArticles,
+    });
+  }
+);
+
+export const readAllArticles = expressAsyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
     const skip = req.query.skip ? Number(req.query.skip) : 0;
 
     const allArticles = await Article.find()
