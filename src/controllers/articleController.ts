@@ -22,14 +22,9 @@ export const createArticle = [
   body("isPublished", "This field is required")
     .trim()
     .notEmpty()
-    .custom((value) => {
-      if (value !== "true" && value !== "false") {
-        throw new Error("This field must be a boolean");
-      } else {
-        return true;
-      }
-    })
-    .escape(),
+    .isBoolean()
+    .withMessage("This field must be a boolean")
+    .toBoolean(),
 
   expressAsyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const validationErrors = validationResult(req);
@@ -78,7 +73,7 @@ export const readPublishedArticle = expressAsyncHandler(
   }
 );
 
-export const readArticle = expressAsyncHandler(
+export const readAnyArticle = expressAsyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
     const { articleId } = req.params;
 
@@ -177,7 +172,7 @@ export const readAllPublishedArticles = expressAsyncHandler(
     const allArticles = await Article.find({ isPublished: true })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(2)
+      .limit(10)
       .exec();
 
     res.status(200).json({
@@ -193,7 +188,7 @@ export const readAllArticles = expressAsyncHandler(
     const allArticles = await Article.find()
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(2)
+      .limit(10)
       .exec();
 
     res.status(200).json({
@@ -201,3 +196,33 @@ export const readAllArticles = expressAsyncHandler(
     });
   }
 );
+
+export const changeVisibilityStatus = [
+  body("isPublished", "This field is required")
+    .trim()
+    .notEmpty()
+    .isBoolean()
+    .withMessage("This field must be a boolean")
+    .toBoolean(),
+
+  expressAsyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { articleId } = req.params;
+
+    const article = await Article.findById(articleId).exec();
+
+    if (!article) {
+      res.status(404).json({
+        message: "Article not found",
+      });
+      return;
+    }
+
+    article.isPublished = req.body.isPublished;
+
+    await article.save();
+
+    res.status(200).json({
+      message: "The visibility status has been successfully updated",
+    });
+  }),
+];
