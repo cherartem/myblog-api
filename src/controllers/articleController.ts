@@ -32,11 +32,6 @@ export const createArticle = [
     if (!validationErrors.isEmpty()) {
       res.status(400).json({
         errors: validationErrors.array(),
-        formData: {
-          title: he.decode(req.body.title),
-          description: he.decode(req.body.description),
-          content: he.decode(req.body.content),
-        },
       });
       return;
     }
@@ -114,11 +109,6 @@ export const updateArticle = [
     if (!validationErrors.isEmpty()) {
       res.status(400).json({
         errors: validationErrors.array(),
-        formData: {
-          title: he.decode(req.body.title),
-          description: he.decode(req.body.description),
-          content: he.decode(req.body.content),
-        },
       });
       return;
     }

@@ -42,12 +42,6 @@ export const signUp = [
     if (!validationErrors.isEmpty()) {
       res.status(400).json({
         errors: validationErrors.array(),
-        formData: {
-          fullname: he.decode(req.body.fullname),
-          username: he.decode(req.body.username),
-          password: he.decode(req.body.password),
-          confirmPassword: he.decode(req.body.confirmPassword),
-        },
       });
     } else {
       const hashedPassword = await hash(req.body.password, 15);
@@ -88,7 +82,7 @@ export const signIn = [
       const match = await compare(value, user!.password);
 
       if (!match) {
-        throw new Error("The entered password is incorrect");
+        throw new Error("Incorrect password");
       } else {
         return true;
       }
@@ -100,10 +94,6 @@ export const signIn = [
     if (!validationErrors.isEmpty()) {
       res.status(400).json({
         errors: validationErrors.array(),
-        formData: {
-          username: he.decode(req.body.username),
-          password: he.decode(req.body.password),
-        },
       });
     } else {
       const user = await User.findOne({ username: req.body.username });
