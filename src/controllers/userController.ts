@@ -7,6 +7,8 @@ import he from "he";
 import { User } from "../models/user";
 import { createAccessToken, createRefreshToken } from "../auth/jwtTokens";
 import { sendRefreshToken } from "../auth/sendRefreshToken";
+import { AuthenticatedRequest } from "../types/request";
+import { Article } from "../models/article";
 
 export const signUp = [
   body("fullname", "This field is required").trim().notEmpty().escape(),
@@ -110,3 +112,24 @@ export const signIn = [
     }
   }),
 ];
+
+export const getUserData = expressAsyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const [user, numOfArticles] = await Promise.all([
+      User.findById(req.user?.userId, "fullname").exec(),
+      Article.count().exec(),
+    ]);
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      fullname: user.fullname,
+      numOfArticles,
+    });
+  }
+);
