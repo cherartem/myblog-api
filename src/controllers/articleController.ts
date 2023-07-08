@@ -2,7 +2,6 @@ import expressAsyncHandler from "express-async-handler";
 import { AuthenticatedRequest } from "../types/request";
 import { Response, Request } from "express";
 import { body, validationResult } from "express-validator";
-import he from "he";
 import { Article } from "../models/article";
 
 export const createArticle = [
@@ -157,32 +156,52 @@ export const deleteArticle = expressAsyncHandler(
 
 export const readAllPublishedArticles = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    const skip = req.query.skip ? Number(req.query.skip) : 0;
+    const cursor = req.query.cursor ? Number(req.query.cursor) : 0;
+    const pageSize = 5;
 
-    const allArticles = await Article.find({ isPublished: true })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(10)
-      .exec();
+    const [totalArticles, articles] = await Promise.all([
+      Article.count({ isPublished: true }).exec(),
+      Article.find({ isPublished: true })
+        .sort({ createdAt: -1 })
+        .skip(cursor)
+        .limit(pageSize)
+        .exec(),
+    ]);
+
+    let nextCursor = null;
+    if (cursor + pageSize < totalArticles) {
+      nextCursor = cursor + pageSize;
+    }
 
     res.status(200).json({
-      allArticles,
+      data: articles,
+      nextCursor,
     });
   }
 );
 
 export const readAllArticles = expressAsyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
-    const skip = req.query.skip ? Number(req.query.skip) : 0;
+    const cursor = req.query.cursor ? Number(req.query.cursor) : 0;
+    const pageSize = 5;
 
-    const allArticles = await Article.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(10)
-      .exec();
+    const [totalArticles, articles] = await Promise.all([
+      Article.count().exec(),
+      Article.find()
+        .sort({ createdAt: -1 })
+        .skip(cursor)
+        .limit(pageSize)
+        .exec(),
+    ]);
+
+    let nextCursor = null;
+    if (cursor + pageSize < totalArticles) {
+      nextCursor = cursor + pageSize;
+    }
 
     res.status(200).json({
-      allArticles,
+      data: articles,
+      nextCursor,
     });
   }
 );
