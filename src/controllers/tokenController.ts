@@ -23,7 +23,7 @@ export const refreshToken = expressAsyncHandler(
     try {
       payload = verify(token, process.env.REFRESH_TOKEN_SECRET!) as Payload;
     } catch (err) {
-      res.status(401).json({
+      res.status(400).json({
         message: "Invalid token",
         accessToken: "",
       });
@@ -41,7 +41,7 @@ export const refreshToken = expressAsyncHandler(
     }
 
     if (user.tokenVersion !== payload.tokenVersion) {
-      res.status(401).json({
+      res.status(400).json({
         message: "Invalid token",
         accessToken: "",
       });
