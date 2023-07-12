@@ -100,6 +100,12 @@ export const updateArticle = [
     .withMessage("This field should be between 1 and 300 characters long")
     .escape(),
   body("content", "This field is required").trim().notEmpty().escape(),
+  body("isPublished", "This field is required")
+    .trim()
+    .notEmpty()
+    .isBoolean()
+    .withMessage("This field must be a boolean")
+    .toBoolean(),
 
   expressAsyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const validationErrors = validationResult(req);
@@ -124,6 +130,7 @@ export const updateArticle = [
     article.title = req.body.title;
     article.description = req.body.description;
     article.content = req.body.content;
+    article.isPublished = req.body.isPublished;
 
     await article.save();
 
@@ -205,33 +212,3 @@ export const readAllArticles = expressAsyncHandler(
     });
   }
 );
-
-export const changeVisibilityStatus = [
-  body("isPublished", "This field is required")
-    .trim()
-    .notEmpty()
-    .isBoolean()
-    .withMessage("This field must be a boolean")
-    .toBoolean(),
-
-  expressAsyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const { articleId } = req.params;
-
-    const article = await Article.findById(articleId).exec();
-
-    if (!article) {
-      res.status(404).json({
-        message: "Article not found",
-      });
-      return;
-    }
-
-    article.isPublished = req.body.isPublished;
-
-    await article.save();
-
-    res.status(200).json({
-      message: "The visibility status has been successfully updated",
-    });
-  }),
-];
