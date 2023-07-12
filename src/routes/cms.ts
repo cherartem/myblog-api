@@ -14,8 +14,8 @@ const router = express.Router();
 router.get("/", isAuth, readAllArticles);
 router.post("/", isAuth, createArticle);
 router.get("/:articleId", isAuth, readAnyArticle);
-router.post("/:articleId", isAuth, updateArticle);
+router.put("/:articleId", isAuth, updateArticle);
 router.delete("/:articleId", isAuth, deleteArticle);
-router.post("/:articleId/is-published", isAuth, changeVisibilityStatus);
+router.put("/:articleId/is-published", isAuth, changeVisibilityStatus);
 
 export default router;
