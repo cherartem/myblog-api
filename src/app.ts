@@ -47,6 +47,8 @@ app.use("/api/cms/articles", cmsArticleRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-const port = process.env.PORT || 5000;
+const port = Number(process.env.PORT) || 3000;
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+app.listen(port, "0.0.0.0", () =>
+  console.log(`Server is running on port ${port}`)
+);
