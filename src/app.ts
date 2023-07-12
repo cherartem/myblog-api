@@ -30,7 +30,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://myblog-cms.vercel.app/"],
     credentials: true,
   })
 );
